@@ -1,10 +1,8 @@
 const CACHE_NAME = 'field-invoice-cache-v5';
 const urlsToCache = [
   './offlineForm.html',
-  './dynamicForm.js',
-  './style.css',
-  './logo.png',
-  './'
+  './index.html',
+  './dynamicForm.js'
 ];
 
 self.addEventListener('install', (event) => {
@@ -14,7 +12,7 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Caching files:', urlsToCache);
       return cache.addAll(urlsToCache);
-    })
+    }).catch(err => console.error('[SW] Caching failed:', err))
   );
 });
 
@@ -43,7 +41,6 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
         if (event.request.mode === 'navigate') {
-          console.log('[SW] Fallback to offlineForm.html');
           return caches.match('./offlineForm.html');
         }
         return new Response('', { status: 404 });
@@ -51,4 +48,3 @@ self.addEventListener('fetch', (event) => {
     )
   );
 });
-
