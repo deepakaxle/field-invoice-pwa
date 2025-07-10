@@ -1,4 +1,5 @@
-const CACHE_NAME = 'field-invoice-cache-v1';
+const CACHE_NAME = 'field-invoice-cache-v2'; // 👈 change version
+
 const urlsToCache = [
   '/field-invoice-pwa/offlineForm.html',
   '/field-invoice-pwa/dynamicForm.js',
