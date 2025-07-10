@@ -1,12 +1,13 @@
 const CACHE_NAME = 'field-invoice-cache-v2'; // 👈 change version
 
 const urlsToCache = [
-  '/field-invoice-pwa/offlineForm.html',
-  '/field-invoice-pwa/dynamicForm.js',
-  '/field-invoice-pwa/style.css',      // optional, include if present
-  '/field-invoice-pwa/logo.png',       // optional assets
-  '/'
+  './offlineForm.html',
+  './dynamicForm.js',
+  './style.css',
+  './logo.png',
+  './'
 ];
+
 
 self.addEventListener('install', function (event) {
   self.skipWaiting(); // Ensures the new service worker activates immediately
