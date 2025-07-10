@@ -128,7 +128,8 @@
   <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/field-invoice-pwa/serviceWorker.js')
+   navigator.serviceWorker.register('./serviceWorker.js')
+
 
       .then(function (reg) {
         console.log('✅ Service Worker registered', reg);
