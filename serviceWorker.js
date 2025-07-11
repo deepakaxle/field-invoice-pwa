@@ -32,16 +32,24 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', (event) => {
   event.respondWith(
-    fetch(event.request)
-      .catch(() => {
-        // Offline fallback logic
-        if (event.request.mode === 'navigate') {
-          console.log('[SW] Offline nav fallback → offlineForm.html');
-          return caches.match('./offlineForm.html');
-        }
-        return caches.match(event.request);
-      })
+    fetch(event.request).catch(async () => {
+      const cachedResponse = await caches.match(event.request);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      // Optional: fallback for navigation requests (e.g., offlineForm.html)
+      if (event.request.mode === 'navigate') {
+        const fallback = await caches.match('/offlineForm.html');
+        if (fallback) return fallback;
+      }
+
+      // Fallback: return a minimal response instead of throwing
+      return new Response('<h1>⚠️ Offline - Not Cached</h1>', {
+        headers: { 'Content-Type': 'text/html' },
+      });
+    })
   );
 });
