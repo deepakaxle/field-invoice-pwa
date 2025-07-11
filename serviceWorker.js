@@ -33,7 +33,6 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', event => {
-  console.log('[SW] Fetching:', event.request.url);
   event.respondWith(
     caches.match(event.request).then(response => {
       if (response) return response;
@@ -41,7 +40,10 @@ self.addEventListener('fetch', event => {
         if (event.request.mode === 'navigate') {
           return caches.match('./offlineForm.html');
         }
-        return new Response('', { status: 404, statusText: 'Offline – resource not found' });
+        return new Response('Offline – not cached', {
+          status: 404,
+          statusText: 'Offline',
+        });
       });
     })
   );
