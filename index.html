@@ -35,27 +35,34 @@
   <p class="status" id="status">Checking connection...</p>
   <button class="go-btn" id="goBtn" style="display: none;" onclick="goToVF()">Go to Online Form</button>
 
-  <script>
-    function goToVF() {
-      window.location.href = 'https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee';
+ <script>
+  window.addEventListener('load', async function () {
+    // ✅ Register service worker
+    if ('serviceWorker' in navigator) {
+      try {
+        await navigator.serviceWorker.register('./serviceWorker.js');
+        console.log('✅ Service Worker registered');
+      } catch (err) {
+        console.error('❌ SW registration failed:', err);
+      }
     }
 
-    window.addEventListener('load', () => {
-      if (navigator.onLine) {
-        document.getElementById('status').textContent = '✅ Online – Click to open Salesforce form';
-        document.getElementById('goBtn').style.display = 'inline-block';
-      } else {
-        document.getElementById('status').textContent = '📴 Offline – offline form will load';
-        // Let SW serve offlineForm.html automatically if user hits this directly
-      }
+    // ✅ Don't auto-redirect — let SW take over if offline
+    const status = document.getElementById('status');
+    const btn = document.getElementById('goBtn');
 
-      // Service worker
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./serviceWorker.js')
-          .then(reg => console.log('✅ Service Worker registered:', reg))
-          .catch(err => console.error('❌ SW registration failed:', err));
-      }
-    });
-  </script>
+    if (navigator.onLine) {
+      status.textContent = '✅ You are online';
+      btn.style.display = 'inline-block';
+    } else {
+      status.textContent = '📴 Offline — offline form will be shown';
+    }
+  });
+
+  function goToVF() {
+    window.location.href = 'https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee';
+  }
+</script>
+
 </body>
 </html>
