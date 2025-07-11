@@ -8,12 +8,10 @@
     window.addEventListener('load', async function () {
       if (navigator.onLine) {
         try {
-          // Attempt HEAD request (quiet test) to VF
           await fetch('https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee', {
             method: 'HEAD',
             mode: 'no-cors'
           });
-
           console.log("✅ VF reachable: redirecting");
           window.location.href = 'https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee';
         } catch (err) {
