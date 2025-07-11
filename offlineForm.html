@@ -158,8 +158,35 @@
     </div>
   </div>
 
-  <script>
-    // You’ll add JS for: contact toggle, file base64 handling, localStorage save
-  </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const companySelect = document.getElementById('companySelect');
+  const companyListJson = localStorage.getItem('company_list');
+
+  if (companyListJson) {
+    try {
+      const companies = JSON.parse(companyListJson);
+
+      // Clear existing options
+      companySelect.innerHTML = '<option value="">Select Company...</option>';
+
+      // Add each company
+      companies.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        companySelect.appendChild(opt);
+      });
+
+    } catch (err) {
+      console.error('❌ Failed to parse company_list:', err);
+      companySelect.innerHTML = '<option value="">⚠️ Error loading companies</option>';
+    }
+  } else {
+    companySelect.innerHTML = '<option value="">⚠️ No companies found in offline cache</option>';
+  }
+});
+</script>
+
 </body>
 </html>
