@@ -1,67 +1,54 @@
-const CACHE_NAME = 'field-invoice-cache-v5';
+const CACHE_NAME = 'field-invoice-cache-v6';
 
 const urlsToCache = [
-  './offlineForm.html',
   './index.html',
+  './offlineForm.html',
   './dynamicForm.js'
 ];
 
-// INSTALL
 self.addEventListener('install', (event) => {
-  console.log('[SW] Install');
-  self.skipWaiting(); // Activate immediately
+  console.log('[SW] Installing');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[SW] Caching files:', urlsToCache);
         return cache.addAll(urlsToCache);
       })
-      .catch((err) => {
-        console.error('[SW] Caching failed during install:', err);
-      })
   );
+  self.skipWaiting();
 });
 
-// ACTIVATE
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate');
+  console.log('[SW] Activating');
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('[SW] Deleting old cache:', key);
-            return caches.delete(key);
-          }
-        })
-      )
+      Promise.all(keys.map((key) => {
+        if (key !== CACHE_NAME) {
+          console.log('[SW] Deleting old cache:', key);
+          return caches.delete(key);
+        }
+      }))
     )
   );
   self.clients.claim();
 });
 
-// FETCH
 self.addEventListener('fetch', (event) => {
-  console.log('[SW] Fetching:', event.request.url, '| Mode:', event.request.mode);
-
+  console.log('[SW] Fetching:', event.request.url);
   event.respondWith(
-    fetch(event.request)
-      .catch(() => {
-        return caches.match(event.request).then((response) => {
-          if (response) {
-            console.log('[SW] Found in cache:', event.request.url);
-            return response;
-          }
+    fetch(event.request).catch(() =>
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
 
-          // Offline fallback for navigation
-          if (event.request.mode === 'navigate') {
-            console.warn('[SW] Offline fallback triggered → offlineForm.html');
-            return caches.match('./offlineForm.html');
-          }
+        // Serve offlineForm.html as fallback for navigation
+        if (event.request.mode === 'navigate') {
+          return caches.match('./offlineForm.html');
+        }
 
-          // Otherwise, return empty response (404)
-          return new Response('', { status: 404, statusText: 'Offline: Resource not cached' });
-        });
+        return new Response('', { status: 404, statusText: 'Offline – resource not found' });
       })
+    )
   );
 });
