@@ -15,7 +15,7 @@
           console.log("✅ VF reachable: redirecting");
           window.location.href = 'https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee';
         } catch (err) {
-          console.warn("❌ VF not reachable, using offline fallback");
+          console.warn("❌ VF unreachable, using offline fallback");
           window.location.href = './offlineForm.html';
         }
       } else {
