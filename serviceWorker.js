@@ -1,27 +1,26 @@
-const CACHE_NAME = 'field-invoice-cache-v6';
-
+const CACHE_NAME = 'field-invoice-cache-v7';
 const urlsToCache = [
   './index.html',
   './offlineForm.html',
   './dynamicForm.js'
 ];
 
-self.addEventListener('install', (event) => {
-  console.log('[SW] Installing');
+self.addEventListener('install', event => {
+  console.log('[SW] Installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Caching files:', urlsToCache);
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('[SW] Caching:', urlsToCache);
       return cache.addAll(urlsToCache);
     })
   );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating');
+self.addEventListener('activate', event => {
+  console.log('[SW] Activating...');
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((key) => {
+    caches.keys().then(keys =>
+      Promise.all(keys.map(key => {
         if (key !== CACHE_NAME) {
           console.log('[SW] Deleting old cache:', key);
           return caches.delete(key);
@@ -40,9 +39,9 @@ self.addEventListener('fetch', event => {
         if (event.request.mode === 'navigate') {
           return caches.match('./offlineForm.html');
         }
-        return new Response('Offline – not cached', {
+        return new Response('❌ Offline & not cached.', {
           status: 404,
-          statusText: 'Offline',
+          statusText: 'Not found in cache.',
         });
       });
     })
