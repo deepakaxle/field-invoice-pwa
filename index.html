@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8" />
   <title>Axle Invoice App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>
-    if (navigator.onLine) {
-      // 🔁 Redirect to online VF page
-      window.location.href = 'https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee';
-    } else {
-      // 📦 Use offline version
-      window.location.href = './offlineForm.html';
-    }
+    window.addEventListener('load', function () {
+      if (navigator.onLine) {
+        console.log("✅ Online: redirecting to VF");
+        window.location.href = 'https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee';
+      } else {
+        console.log("📴 Offline: loading offline form");
+        window.location.href = './offlineForm.html';
+      }
+    });
   </script>
 </head>
 <body>
-  <p style="text-align: center; font-family: sans-serif; padding-top: 40px;">Loading invoice form...</p>
+  <p>Loading invoice form...</p>
 </body>
 </html>
