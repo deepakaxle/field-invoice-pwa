@@ -2,63 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Offline Field Invoice</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline Field Invoice</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background: #fafafa;
-      color: #333;
-      max-width: 600px;
-      margin: auto;
-    }
-    .form-group {
-      margin-bottom: 1rem;
-      text-align: left;
-    }
-    .form-group label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 6px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    body { font-family: Arial; padding: 20px; background: #f2f2f2; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;
     }
     button {
-      padding: 12px 20px;
-      background: #FF5F15;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #d94800;
+      padding: 12px; background: #FF5F15; color: white; border: none; border-radius: 8px;
     }
   </style>
 </head>
 <body>
   <h2>📴 Offline Mode</h2>
-  <p>Internet is not available. This invoice will be saved and submitted once you're back online.</p>
+  <p>This is the offline invoice form. Internet is not available.</p>
 
   <form id="offlineInvoiceForm">
     <div class="form-group">
-      <label for="invoiceNumber">Invoice #</label>
+      <label>Invoice #</label>
       <input id="invoiceNumber" required />
     </div>
     <div class="form-group">
-      <label for="invoiceDate">Invoice Date</label>
+      <label>Invoice Date</label>
       <input type="date" id="invoiceDate" required />
     </div>
     <div class="form-group">
-      <label for="comments">Comments</label>
-      <textarea id="comments" rows="4"></textarea>
+      <label>Comments</label>
+      <textarea id="comments"></textarea>
     </div>
-    <button type="submit">💾 Save Offline</button>
+    <button type="submit">Save Offline</button>
   </form>
 
   <script>
@@ -68,10 +43,9 @@
         invoiceNumber: document.getElementById('invoiceNumber').value,
         invoiceDate: document.getElementById('invoiceDate').value,
         comments: document.getElementById('comments').value,
-        timestamp: new Date().toISOString()
       };
       localStorage.setItem('offline_invoice_data', JSON.stringify(data));
-      alert('✅ Invoice saved offline! It will be synced when internet is back.');
+      alert('✅ Invoice saved offline!');
     });
   </script>
 </body>
