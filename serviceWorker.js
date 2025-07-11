@@ -1,9 +1,9 @@
 const CACHE_NAME = 'field-invoice-cache-v9';
 const urlsToCache = [
-  './',
-  './index.html',
-  './offlineForm.html',
-  './dynamicForm.js'
+  '/offlineForm.html',
+  '/manifest.json',
+  '/dynamicForm.js',
+  '/favicon.ico'
 ];
 
 self.addEventListener('install', event => {
