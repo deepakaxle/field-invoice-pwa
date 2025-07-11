@@ -159,56 +159,57 @@
   </div>
 
 <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const companySelect = document.getElementById('companySelect');
+    const cachedCompanies = localStorage.getItem('company_list');
 
-document.addEventListener('DOMContentLoaded', () => {
-  const companySelect = document.getElementById('companySelect');
-  const companyListJson = localStorage.getItem('company_list');
-
-  if (companyListJson) {
-    try {
-      const companies = JSON.parse(companyListJson);
-
-      companySelect.innerHTML = '<option value="">Select Company...</option>';
-      companies.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.name;
-        companySelect.appendChild(opt);
-      });
-
-    } catch (err) {
-      console.error('❌ Failed to parse company_list:', err);
-      companySelect.innerHTML = '<option value="">⚠️ Error loading companies</option>';
-    }
-  } else {
-    companySelect.innerHTML = '<option value="">⚠️ No companies found in offline cache</option>';
-  }
-});
-
-// ✅ Listen for companyList from VF iframe and store it
-window.addEventListener('message', function (event) {
-  if (event.data && event.data.type === 'companyList') {
-    try {
-      const data = JSON.parse(event.data.data);
-      console.log('📥 Received company list from VF:', data);
-      localStorage.setItem('company_list', event.data.data);
-
-      const companySelect = document.getElementById('companySelect');
-      if (companySelect) {
+    if (cachedCompanies) {
+      try {
+        const companies = JSON.parse(cachedCompanies);
         companySelect.innerHTML = '<option value="">Select Company...</option>';
-        data.forEach(c => {
+        companies.forEach(c => {
           const opt = document.createElement('option');
           opt.value = c.id;
           opt.textContent = c.name;
           companySelect.appendChild(opt);
         });
+      } catch (e) {
+        console.error('❌ Failed to parse cached company list:', e);
       }
-    } catch (err) {
-      console.error('❌ Failed to save or parse company list from VF:', err);
+    } else {
+      companySelect.innerHTML = '<option value="">⚠️ No companies in offline cache</option>';
     }
-  }
-});
+  });
+
+  // ✅ Receive company list from VF page via postMessage
+  window.addEventListener('message', (event) => {
+    try {
+      const msg = event.data;
+      if (msg && msg.type === 'companyList') {
+        const companies = JSON.parse(msg.data);
+        if (Array.isArray(companies)) {
+          localStorage.setItem('company_list', msg.data);
+          console.log('📥 Received company list from VF:', companies);
+
+          // Optional: update dropdown immediately
+          const companySelect = document.getElementById('companySelect');
+          if (companySelect) {
+            companySelect.innerHTML = '<option value="">Select Company...</option>';
+            companies.forEach(c => {
+              const opt = document.createElement('option');
+              opt.value = c.id;
+              opt.textContent = c.name;
+              companySelect.appendChild(opt);
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.error('❌ Error handling postMessage in offline form:', e);
+    }
+  });
 </script>
+
 
 
 </body>
