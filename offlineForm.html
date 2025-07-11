@@ -10,12 +10,69 @@
       padding: 2rem;
       background: #fafafa;
       color: #333;
-      text-align: center;
+      max-width: 600px;
+      margin: auto;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+    .form-group label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 12px 20px;
+      background: #FF5F15;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #d94800;
     }
   </style>
 </head>
 <body>
   <h2>📴 Offline Mode</h2>
-  <p>This is the offline invoice form. Internet is not available.</p>
+  <p>Internet is not available. This invoice will be saved and submitted once you're back online.</p>
+
+  <form id="offlineInvoiceForm">
+    <div class="form-group">
+      <label for="invoiceNumber">Invoice #</label>
+      <input id="invoiceNumber" required />
+    </div>
+    <div class="form-group">
+      <label for="invoiceDate">Invoice Date</label>
+      <input type="date" id="invoiceDate" required />
+    </div>
+    <div class="form-group">
+      <label for="comments">Comments</label>
+      <textarea id="comments" rows="4"></textarea>
+    </div>
+    <button type="submit">💾 Save Offline</button>
+  </form>
+
+  <script>
+    document.getElementById('offlineInvoiceForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const data = {
+        invoiceNumber: document.getElementById('invoiceNumber').value,
+        invoiceDate: document.getElementById('invoiceDate').value,
+        comments: document.getElementById('comments').value,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('offline_invoice_data', JSON.stringify(data));
+      alert('✅ Invoice saved offline! It will be synced when internet is back.');
+    });
+  </script>
 </body>
 </html>
