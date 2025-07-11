@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Offline Field Invoice</title>
-  <link rel="stylesheet" href="style.css" /> <!-- optional if styles separated -->
   <style>
     body {
       margin: 0;
@@ -124,17 +123,91 @@
     </div>
   </div>
 
-  <script src="dynamicForm.js"></script>
   <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./serviceWorker.js')
-      .then(reg => console.log('✅ SW registered:', reg))
-      .catch(err => console.error('❌ SW failed:', err));
-  });
-}
+    let fileArray = [];
 
-</script>
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+      const fileList = document.getElementById('fileList');
+      fileArray = [];
+      fileList.innerHTML = '';
+      
+      Array.from(event.target.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          fileArray.push({ name: file.name, body: e.target.result });
+          const pill = document.createElement('div');
+          pill.className = 'file-pill';
+          pill.textContent = file.name;
+          fileList.appendChild(pill);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
 
+    document.getElementById('offlineInvoiceForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = {
+        invoiceNumber: document.getElementById('invoiceNumber').value,
+        invoiceDate: document.getElementById('invoiceDate').value,
+        companyId: document.getElementById('companySelect').value,
+        contactId: document.getElementById('contactSelect').value,
+        approverNumber: document.getElementById('approverNumber').value,
+        afeNumber: document.getElementById('afeNumber').value,
+        submittedBy: document.getElementById('submittedBy').value,
+        comments: document.getElementById('comments').value,
+        files: fileArray,
+        newContact: (document.getElementById('contactSelect').value === 'new') ? {
+          firstName: document.getElementById('newContactFirstName').value,
+          lastName: document.getElementById('newContactLastName').value,
+          mobile: document.getElementById('newContactMobile').value,
+          email: document.getElementById('newContactEmail').value
+        } : null
+      };
+      localStorage.setItem('offline_invoice_data', JSON.stringify(formData));
+      alert('✅ Invoice saved offline. It will sync once you’re online.');
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const companySelect = document.getElementById('companySelect');
+      const contactSelect = document.getElementById('contactSelect');
+      const newContactFields = document.getElementById('newContactFields');
+
+      const companies = JSON.parse(localStorage.getItem('company_list') || '[]');
+      companies.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        companySelect.appendChild(opt);
+      });
+
+      companySelect.addEventListener('change', () => {
+        const selectedCompany = companySelect.value;
+        const contacts = JSON.parse(localStorage.getItem('contact_list') || '[]');
+        contactSelect.innerHTML = '<option value="">Select Contact...</option>';
+        contacts.filter(c => c.companyId === selectedCompany).forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          contactSelect.appendChild(opt);
+        });
+        const newOpt = document.createElement('option');
+        newOpt.value = 'new';
+        newOpt.textContent = '+ New Contact';
+        contactSelect.appendChild(newOpt);
+      });
+
+      contactSelect.addEventListener('change', () => {
+        newContactFields.style.display = contactSelect.value === 'new' ? 'block' : 'none';
+      });
+
+      document.getElementById('submittedBy').value = localStorage.getItem('offline_contact_name') || '';
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./serviceWorker.js')
+        .then(reg => console.log('✅ Service Worker registered:', reg))
+        .catch(err => console.error('❌ Service Worker failed:', err));
+    }
+  </script>
 </body>
 </html>
