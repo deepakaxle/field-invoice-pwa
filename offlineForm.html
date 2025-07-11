@@ -186,6 +186,22 @@ document.addEventListener('DOMContentLoaded', () => {
     companySelect.innerHTML = '<option value="">⚠️ No companies found in offline cache</option>';
   }
 });
+   window.addEventListener('message', (event) => {
+    try {
+      const msg = event.data;
+      if (msg && msg.type === 'companyList') {
+        const companies = JSON.parse(msg.data);
+        if (Array.isArray(companies)) {
+          localStorage.setItem('company_list', msg.data);
+          console.log('📥 Company list received and cached:', companies);
+        } else {
+          console.warn('❌ Invalid company list format');
+        }
+      }
+    } catch (e) {
+      console.error('❌ Error handling postMessage:', e);
+    }
+  });
 </script>
 
 </body>
