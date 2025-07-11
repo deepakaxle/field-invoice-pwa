@@ -41,7 +41,7 @@
     }
 
     window.addEventListener('load', async function () {
-      // ✅ Register service worker
+      // ✅ Register service worker (safe to run always)
       if ('serviceWorker' in navigator) {
         try {
           await navigator.serviceWorker.register('./serviceWorker.js');
@@ -51,7 +51,6 @@
         }
       }
 
-      // 🧠 Let SW handle offline fallback
       const status = document.getElementById('status');
       const btn = document.getElementById('goBtn');
 
@@ -59,7 +58,9 @@
         status.textContent = '✅ You are online';
         btn.style.display = 'inline-block';
       } else {
-        status.textContent = '📴 Offline — offline form will be shown';
+        status.textContent = '📴 You are offline — loading offline form...';
+        // ⏳ Let the service worker serve offlineForm.html automatically
+        window.location.href = './offlineForm.html';
       }
     });
   </script>
