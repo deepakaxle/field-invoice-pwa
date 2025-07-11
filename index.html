@@ -1,31 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Axle Invoice App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <title>Axle Invoice PWA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f2f2f2;
+      color: #333;
+      text-align: center;
+    }
+    .status {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .go-btn {
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #FF5F15;
+      color: white;
+      cursor: pointer;
+    }
+    .go-btn:hover {
+      background: #d94800;
+    }
+  </style>
+</head>
+<body>
+  <h1>Axle Invoice App</h1>
+  <p class="status" id="status">Checking connection...</p>
+  <button class="go-btn" id="goBtn" style="display: none;" onclick="goToVF()">Go to Online Form</button>
+
   <script>
-    window.addEventListener('load', async function () {
+    function goToVF() {
+      window.location.href = 'https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee';
+    }
+
+    window.addEventListener('load', () => {
       if (navigator.onLine) {
-        try {
-          await fetch('https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee', {
-            method: 'HEAD',
-            mode: 'no-cors'
-          });
-          console.log("✅ VF reachable: redirecting");
-          window.location.href = 'https://axleservices--uat.sandbox.my.salesforce-sites.com/axleuploadinvoice/AxleInvoiceDee';
-        } catch (err) {
-          console.warn("❌ VF unreachable, using offline fallback");
-          window.location.href = './offlineForm.html';
-        }
+        document.getElementById('status').textContent = '✅ Online – Salesforce form available.';
+        document.getElementById('goBtn').style.display = 'inline-block';
       } else {
-        console.log("📴 Offline: loading offline form");
-        window.location.href = './offlineForm.html';
+        document.getElementById('status').textContent = '📴 Offline – loading offline form...';
+        // Let service worker show offlineForm.html
+      }
+
+      // Register the service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./serviceWorker.js')
+          .then(reg => console.log('✅ Service Worker registered:', reg))
+          .catch(err => console.error('❌ SW registration failed:', err));
       }
     });
   </script>
-</head>
-<body>
-  <p>Loading invoice form...</p>
 </body>
 </html>
