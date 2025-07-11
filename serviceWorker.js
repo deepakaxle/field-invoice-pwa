@@ -1,6 +1,6 @@
-const CACHE_NAME = 'field-invoice-cache-v7';
-
+const CACHE_NAME = 'field-invoice-cache-v9';
 const urlsToCache = [
+  './',
   './index.html',
   './offlineForm.html',
   './dynamicForm.js'
@@ -34,17 +34,14 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(response => {
-      if (response) return response;
-      return fetch(event.request).catch(() => {
+    fetch(event.request)
+      .catch(() => {
+        // Offline fallback logic
         if (event.request.mode === 'navigate') {
+          console.log('[SW] Offline nav fallback → offlineForm.html');
           return caches.match('./offlineForm.html');
         }
-        return new Response('❌ Offline & not cached.', {
-          status: 404,
-          statusText: 'Not found in cache.',
-        });
-      });
-    })
+        return caches.match(event.request);
+      })
   );
 });
