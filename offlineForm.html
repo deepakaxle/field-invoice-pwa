@@ -202,6 +202,31 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('❌ Error handling postMessage:', e);
     }
   });
+  <script>
+  // Listen for messages from VF iframe
+  window.addEventListener('message', function (event) {
+    if (event.data && event.data.type === 'companyList') {
+      try {
+        const data = JSON.parse(event.data.data);
+        console.log('📥 Received company list from VF:', data);
+        localStorage.setItem('company_list', event.data.data);
+
+        // Optional: if companySelect already exists, update it immediately
+        const companySelect = document.getElementById('companySelect');
+        if (companySelect) {
+          companySelect.innerHTML = '<option value="">Select Company...</option>';
+          data.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            companySelect.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error('❌ Failed to save or parse company list from VF:', err);
+      }
+    }
+  });
 </script>
 
 </body>
