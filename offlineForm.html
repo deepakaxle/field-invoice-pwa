@@ -208,6 +208,11 @@
         .then(reg => console.log('✅ Service Worker registered:', reg))
         .catch(err => console.error('❌ Service Worker failed:', err));
     }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./serviceWorker.js')
+      .then(() => console.log('✅ Service Worker registered'))
+      .catch(err => console.error('❌ Service Worker failed:', err));
+  }
   </script>
 </body>
 </html>
