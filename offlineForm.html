@@ -2,51 +2,164 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Offline Field Invoice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Field Invoice Upload (Offline)</title>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f2f2f2; }
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
-    .form-group input, .form-group textarea, .form-group select {
-      width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;
+    /* Your existing Visualforce CSS mirrored here */
+    body, html {
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+      font-family: 'SF Pro', sans-serif;
+      font-size: 16px;
+      color: #222;
+      height: 100%;
     }
-    button {
-      padding: 12px; background: #FF5F15; color: white; border: none; border-radius: 8px;
+    .main-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .form-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 30px 22px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+    .form-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1.5px solid #ccc;
+      background: #fafafa;
+      box-sizing: border-box;
+    }
+    .save-btn {
+      width: 100%;
+      background: #FF5F15;
+      color: white;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    .upload-container {
+      border: 2px dashed #bbb;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      background: #f9f9f9;
+    }
+    .file-pill {
+      display: inline-block;
+      margin: 6px 4px;
+      padding: 6px 14px;
+      background: rgba(40, 167, 69, 0.08);
+      border: 1.5px dashed #28a745;
+      border-radius: 999px;
+      color: #28a745;
+      font-size: 0.85rem;
+      white-space: nowrap;
     }
   </style>
 </head>
 <body>
-  <h2>📴 Offline Mode</h2>
-  <p>This is the offline invoice form. Internet is not available.</p>
+  <div class="main-wrap">
+    <div class="form-card">
+      <div class="form-title">Field Invoice Form</div>
 
-  <form id="offlineInvoiceForm">
-    <div class="form-group">
-      <label>Invoice #</label>
-      <input id="invoiceNumber" required />
+      <form id="offlineInvoiceForm">
+        <div class="form-group">
+          <label class="form-label">Invoice #</label>
+          <input type="text" id="invoiceNumber" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Invoice Date</label>
+          <input type="date" id="invoiceDate" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Company</label>
+          <select id="companySelect" class="form-select" required></select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contact</label>
+          <select id="contactSelect" class="form-select" required>
+            <option value="">Select Contact...</option>
+            <option value="new">+ New Contact</option>
+          </select>
+        </div>
+
+        <div id="newContactFields" class="hidden">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" id="newContactFirstName" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" id="newContactLastName" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile Number</label>
+            <input type="tel" id="newContactMobile" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="newContactEmail" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Approver Number</label>
+          <input type="text" id="approverNumber" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">AFE Number</label>
+          <input type="text" id="afeNumber" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Comments</label>
+          <textarea id="comments" class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Upload Files</label>
+          <div class="file-list" id="fileList"></div>
+          <div class="upload-container" onclick="document.getElementById('fileInput').click();">
+            <input type="file" id="fileInput" style="display: none;" multiple />
+            <p>Click to select files</p>
+          </div>
+        </div>
+
+        <button type="submit" class="save-btn">Save Invoice Offline</button>
+      </form>
     </div>
-    <div class="form-group">
-      <label>Invoice Date</label>
-      <input type="date" id="invoiceDate" required />
-    </div>
-    <div class="form-group">
-      <label>Comments</label>
-      <textarea id="comments"></textarea>
-    </div>
-    <button type="submit">Save Offline</button>
-  </form>
+  </div>
 
   <script>
-    document.getElementById('offlineInvoiceForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const data = {
-        invoiceNumber: document.getElementById('invoiceNumber').value,
-        invoiceDate: document.getElementById('invoiceDate').value,
-        comments: document.getElementById('comments').value,
-      };
-      localStorage.setItem('offline_invoice_data', JSON.stringify(data));
-      alert('✅ Invoice saved offline!');
-    });
+    // You’ll add JS for: contact toggle, file base64 handling, localStorage save
   </script>
 </body>
 </html>
