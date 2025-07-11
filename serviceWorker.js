@@ -1,4 +1,5 @@
 const CACHE_NAME = 'field-invoice-cache-v7';
+
 const urlsToCache = [
   './index.html',
   './offlineForm.html',
