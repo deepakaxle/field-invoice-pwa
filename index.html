@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Axle Invoice PWA</title>
+  <title>Axle Invoice App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -42,14 +42,14 @@
 
     window.addEventListener('load', () => {
       if (navigator.onLine) {
-        document.getElementById('status').textContent = '✅ Online – Salesforce form available.';
+        document.getElementById('status').textContent = '✅ Online – Click to open Salesforce form';
         document.getElementById('goBtn').style.display = 'inline-block';
       } else {
-        document.getElementById('status').textContent = '📴 Offline – loading offline form...';
-        // Let service worker show offlineForm.html
+        document.getElementById('status').textContent = '📴 Offline – offline form will load';
+        // Let SW serve offlineForm.html automatically if user hits this directly
       }
 
-      // Register the service worker
+      // Service worker
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./serviceWorker.js')
           .then(reg => console.log('✅ Service Worker registered:', reg))
