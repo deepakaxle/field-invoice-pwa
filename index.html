@@ -2,38 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Axle Invoice App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axle Invoice Upload Router</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background: #f2f2f2;
-      color: #333;
+      font-family: sans-serif;
       text-align: center;
+      padding: 50px;
     }
-    .status {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-    }
-    .go-btn {
-      padding: 12px 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
+    #goBtn {
+      display: none;
+      margin-top: 20px;
+      padding: 12px 24px;
       background: #FF5F15;
       color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
       cursor: pointer;
-    }
-    .go-btn:hover {
-      background: #d94800;
     }
   </style>
 </head>
 <body>
-  <h1>Axle Invoice App</h1>
-  <p class="status" id="status">Checking connection...</p>
-  <button class="go-btn" id="goBtn" style="display: none;" onclick="goToVF()">Go to Online Form</button>
+  <h1>Axle Field Invoice Upload</h1>
+  <div id="status">🔄 Checking connectivity...</div>
+  <button id="goBtn" onclick="goToVF()">Continue Online</button>
 
   <script>
     function goToVF() {
@@ -41,7 +34,7 @@
     }
 
     window.addEventListener('load', async function () {
-      // ✅ Register service worker (safe to run always)
+      // ✅ Register service worker
       if ('serviceWorker' in navigator) {
         try {
           await navigator.serviceWorker.register('./serviceWorker.js');
@@ -54,12 +47,29 @@
       const status = document.getElementById('status');
       const btn = document.getElementById('goBtn');
 
+      const companyList = localStorage.getItem('company_list');
+
       if (navigator.onLine) {
         status.textContent = '✅ You are online';
+
+        // 🔁 Restore from sessionStorage if needed
+        if (!companyList && sessionStorage.getItem('company_list')) {
+          localStorage.setItem('company_list', sessionStorage.getItem('company_list'));
+          console.log('📦 Restored company_list from sessionStorage');
+        }
+
+        // ⏩ Show button to proceed online
         btn.style.display = 'inline-block';
       } else {
         status.textContent = '📴 You are offline — loading offline form...';
-        // ⏳ Let the service worker serve offlineForm.html automatically
+
+        // 🔁 Try restoring backup if needed
+        if (!companyList && sessionStorage.getItem('company_list')) {
+          localStorage.setItem('company_list', sessionStorage.getItem('company_list'));
+          console.log('📦 (Offline) Restored company_list from sessionStorage');
+        }
+
+        // ⏳ Redirect to offline version
         window.location.href = './offlineForm.html';
       }
     });
