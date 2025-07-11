@@ -34,16 +34,15 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', event => {
+  console.log('[SW] Fetching:', event.request.url);
   event.respondWith(
     caches.match(event.request).then(response => {
-      // Return from cache if found
       if (response) return response;
-
-      // Try network, fallback to offlineForm.html for navigations
       return fetch(event.request).catch(() => {
         if (event.request.mode === 'navigate') {
           return caches.match('./offlineForm.html');
         }
+        return new Response('', { status: 404, statusText: 'Offline – resource not found' });
       });
     })
   );
