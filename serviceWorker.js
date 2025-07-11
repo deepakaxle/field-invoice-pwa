@@ -9,11 +9,10 @@ const urlsToCache = [
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing');
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[SW] Caching files:', urlsToCache);
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[SW] Caching files:', urlsToCache);
+      return cache.addAll(urlsToCache);
+    })
   );
   self.skipWaiting();
 });
