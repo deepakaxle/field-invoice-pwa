@@ -280,6 +280,26 @@ document.getElementById('offlineInvoiceForm').addEventListener('submit', functio
       console.error('❌ Error in postMessage:', err);
     }
   });
+  function showSyncNotification(message, color = '#28a745') {
+  const notify = document.createElement('div');
+  notify.innerText = message;
+  notify.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    color: ${color};
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: 1px solid ${color};
+    font-size: 0.9rem;
+    z-index: 9999;
+  `;
+  document.body.appendChild(notify);
+  setTimeout(() => notify.remove(), 2500);
+}
+
 </script>
 
 
