@@ -196,7 +196,9 @@
         try {
           populateCompanyDropdown(JSON.parse(retry));
           console.log('⏱ Retried loading company list from cache');
-        } catch (e) {}
+        } catch (e) {
+          console.error('❌ Retry failed:', e);
+        }
       }
     }, 1000);
   });
@@ -238,6 +240,7 @@
     }
   });
 </script>
+
 
 
 
