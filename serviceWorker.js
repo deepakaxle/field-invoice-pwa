@@ -1,16 +1,14 @@
-// serviceWorker.js
-
 const CACHE_NAME = 'field-invoice-cache-v1';
 const urlsToCache = [
-  './index.html',
-  './offlineForm.html',
-  './style.css',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  '/field-invoice-pwa/',
+  '/field-invoice-pwa/index.html',
+  '/field-invoice-pwa/offlineForm.html',
+  '/field-invoice-pwa/style.css',
+  '/field-invoice-pwa/manifest.json',
+  '/field-invoice-pwa/icons/icon-192.png',
+  '/field-invoice-pwa/icons/icon-512.png'
 ];
 
-// ✅ Install event: cache static files
 self.addEventListener('install', event => {
   console.log('[SW] Installing...');
   event.waitUntil(
@@ -25,19 +23,17 @@ self.addEventListener('install', event => {
   );
 });
 
-// ✅ Activate event
 self.addEventListener('activate', event => {
   console.log('[SW] Activating...');
   event.waitUntil(self.clients.claim());
 });
 
-// ✅ Fetch: Try network first, fallback to offlineForm.html if it fails
 self.addEventListener('fetch', event => {
   event.respondWith(
     fetch(event.request).catch(() => {
       console.log('[SW] Offline fallback → offlineForm.html');
       if (event.request.mode === 'navigate') {
-        return caches.match('./offlineForm.html');
+        return caches.match('/field-invoice-pwa/offlineForm.html');
       }
     })
   );
