@@ -36,13 +36,10 @@
     window.addEventListener('load', async function () {
       // ✅ Register service worker
       if ('serviceWorker' in navigator) {
-        try {
-          await navigator.serviceWorker.register('./serviceWorker.js');
-          console.log('✅ Service Worker registered');
-        } catch (err) {
-          console.error('❌ SW registration failed:', err);
-        }
-      }
+  navigator.serviceWorker.register('./serviceWorker.js')
+    .then(reg => console.log('✅ Service Worker registered'))
+    .catch(err => console.error('❌ SW registration failed:', err));
+}
 
       const status = document.getElementById('status');
       const btn = document.getElementById('goBtn');
