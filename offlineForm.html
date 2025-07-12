@@ -157,8 +157,70 @@
       </form>
     </div>
   </div>
-
 <script>
+document.getElementById('offlineInvoiceForm').addEventListener('submit', function (e) {
+  e.preventDefault(); // prevent actual submission
+
+  const formData = {
+    invoiceNumber: document.getElementById('invoiceNumber').value,
+    invoiceDate: document.getElementById('invoiceDate').value,
+    companyId: document.getElementById('companySelect').value,
+    contactId: document.getElementById('contactSelect').value,
+    approverNumber: document.getElementById('approverNumber').value,
+    afeNumber: document.getElementById('afeNumber').value,
+    comments: document.getElementById('comments').value,
+    newContact: null,
+    files: []
+  };
+
+  // If new contact was selected
+  if (formData.contactId === 'new') {
+    formData.newContact = {
+      firstName: document.getElementById('newContactFirstName').value,
+      lastName: document.getElementById('newContactLastName').value,
+      mobile: document.getElementById('newContactMobile').value,
+      email: document.getElementById('newContactEmail').value
+    };
+  }
+
+  // Process uploaded files as base64
+  const input = document.getElementById('fileInput');
+  const files = input.files;
+
+  if (files.length > 0) {
+    let remaining = files.length;
+
+    for (let i = 0; i < files.length; i++) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        formData.files.push({
+          name: files[i].name,
+          body: e.target.result
+        });
+
+        remaining--;
+        if (remaining === 0) {
+          saveOfflineInvoice(formData);
+        }
+      };
+      reader.onerror = function () {
+        alert('❌ Error reading file: ' + files[i].name);
+        remaining--;
+      };
+      reader.readAsDataURL(files[i]);
+    }
+  } else {
+    saveOfflineInvoice(formData);
+  }
+
+  function saveOfflineInvoice(data) {
+    localStorage.setItem('offline_invoice_data', JSON.stringify(data));
+    alert('✅ Invoice saved offline. It will be submitted when online.');
+    document.getElementById('offlineInvoiceForm').reset();
+    document.getElementById('fileList').innerHTML = '';
+  }
+});
+
   function populateCompanyDropdown(companies) {
     const companySelect = document.getElementById('companySelect');
     if (!companySelect) return;
