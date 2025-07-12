@@ -267,38 +267,42 @@ document.getElementById('offlineInvoiceForm').addEventListener('submit', functio
   });
 
   // 📥 Listen for postMessage from VF (optional if iframe-preload is used)
-  window.addEventListener('message', (event) => {
-    try {
-      const msg = event.data;
-      if (msg?.type === 'companyList') {
-        const data = JSON.parse(msg.data);
+ // 📥 Listen for postMessage from VF to update & save companies
+window.addEventListener('message', (event) => {
+  try {
+    const msg = event.data;
+    if (msg?.type === 'companyList') {
+      const data = JSON.parse(msg.data);
+      if (Array.isArray(data)) {
         localStorage.setItem('company_list', msg.data);
-        populateCompanyDropdown(data);
+
+        // Optionally show a green synced message
+        const notify = document.createElement('div');
+        notify.innerText = '✅ Company list synced from Salesforce';
+        notify.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #1a1a1a;
+          color: #28a745;
+          padding: 10px 16px;
+          border-radius: 20px;
+          border: 1px solid #28a745;
+          font-size: 0.9rem;
+          z-index: 9999;
+        `;
+        document.body.appendChild(notify);
+        setTimeout(() => notify.remove(), 2500);
+
+        populateCompanyDropdown(data); // <-- populate dropdown immediately
         console.log('📥 Company list received and saved:', data);
       }
-    } catch (err) {
-      console.error('❌ Error in postMessage:', err);
     }
-  });
-  function showSyncNotification(message, color = '#28a745') {
-  const notify = document.createElement('div');
-  notify.innerText = message;
-  notify.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1a1a1a;
-    color: ${color};
-    padding: 10px 16px;
-    border-radius: 20px;
-    border: 1px solid ${color};
-    font-size: 0.9rem;
-    z-index: 9999;
-  `;
-  document.body.appendChild(notify);
-  setTimeout(() => notify.remove(), 2500);
-}
+  } catch (err) {
+    console.error('❌ Error receiving postMessage:', err);
+  }
+});
 
 </script>
 
