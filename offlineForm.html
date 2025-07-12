@@ -159,31 +159,49 @@
   </div>
 
 <script>
-  // 🔁 When offlineForm.html loads, populate the company dropdown from cache
-  document.addEventListener('DOMContentLoaded', () => {
+  function populateCompanyDropdown(companies) {
     const companySelect = document.getElementById('companySelect');
-    const cached = localStorage.getItem('company_list');
+    if (!companySelect) return;
 
+    companySelect.innerHTML = '<option value="">Select Company...</option>';
+    companies.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      companySelect.appendChild(opt);
+    });
+  }
+
+  // 🔁 When page loads, try loading from localStorage
+  document.addEventListener('DOMContentLoaded', () => {
+    const cached = localStorage.getItem('company_list');
     if (cached) {
       try {
         const companies = JSON.parse(cached);
-        companySelect.innerHTML = '<option value="">Select Company...</option>';
-        companies.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = c.name;
-          companySelect.appendChild(opt);
-        });
+        populateCompanyDropdown(companies);
       } catch (e) {
         console.error('❌ Failed to parse cached company list:', e);
-        companySelect.innerHTML = '<option value="">⚠️ Error loading companies</option>';
+        document.getElementById('companySelect').innerHTML =
+          '<option value="">⚠️ Error loading companies</option>';
       }
     } else {
-      companySelect.innerHTML = '<option value="">⚠️ No companies found (offline)</option>';
+      document.getElementById('companySelect').innerHTML =
+        '<option value="">⚠️ No companies found (offline)</option>';
     }
+
+    // ⏱ Retry after 1 second in case VF iframe sends it late
+    setTimeout(() => {
+      const retry = localStorage.getItem('company_list');
+      if (retry) {
+        try {
+          populateCompanyDropdown(JSON.parse(retry));
+          console.log('⏱ Retried loading company list from cache');
+        } catch (e) {}
+      }
+    }, 1000);
   });
 
-  // 📥 Listen for company list from VF page (via postMessage)
+  // 📥 Listen for postMessage from VF to update & save companies
   window.addEventListener('message', (event) => {
     try {
       const msg = event.data;
@@ -191,38 +209,28 @@
         const data = JSON.parse(msg.data);
         if (Array.isArray(data)) {
           localStorage.setItem('company_list', msg.data);
-          // Optionally show a green banner
-const notify = document.createElement('div');
-notify.innerText = '✅ Company list synced from Salesforce';
-notify.style.cssText = `
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1a1a1a;
-  color: #28a745;
-  padding: 10px 16px;
-  border-radius: 20px;
-  border: 1px solid #28a745;
-  font-size: 0.9rem;
-  z-index: 9999;
-`;
-document.body.appendChild(notify);
-setTimeout(() => notify.remove(), 2500);
 
+          // ✅ Optional: show a green synced message
+          const notify = document.createElement('div');
+          notify.innerText = '✅ Company list synced from Salesforce';
+          notify.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: #28a745;
+            padding: 10px 16px;
+            border-radius: 20px;
+            border: 1px solid #28a745;
+            font-size: 0.9rem;
+            z-index: 9999;
+          `;
+          document.body.appendChild(notify);
+          setTimeout(() => notify.remove(), 2500);
+
+          populateCompanyDropdown(data);
           console.log('📥 Company list received and saved:', data);
-
-          // Optional: populate dropdown live
-          const companySelect = document.getElementById('companySelect');
-          if (companySelect) {
-            companySelect.innerHTML = '<option value="">Select Company...</option>';
-            data.forEach(c => {
-              const opt = document.createElement('option');
-              opt.value = c.id;
-              opt.textContent = c.name;
-              companySelect.appendChild(opt);
-            });
-          }
         }
       }
     } catch (err) {
