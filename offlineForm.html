@@ -234,24 +234,25 @@ document.getElementById('offlineInvoiceForm').addEventListener('submit', functio
     });
   }
 
-  // 🔁 When page loads, try loading from localStorage
   document.addEventListener('DOMContentLoaded', () => {
     const cached = localStorage.getItem('company_list');
+
     if (cached) {
       try {
         const companies = JSON.parse(cached);
         populateCompanyDropdown(companies);
+        console.log('✅ Company list loaded from cache');
       } catch (e) {
-        console.error('❌ Failed to parse cached company list:', e);
+        console.error('❌ Failed to parse company_list from localStorage', e);
         document.getElementById('companySelect').innerHTML =
-          '<option value="">⚠️ Error loading companies</option>';
+          '<option value="">⚠️ Failed to load companies</option>';
       }
     } else {
       document.getElementById('companySelect').innerHTML =
-        '<option value="">⚠️ No companies found (offline)</option>';
+        '<option value="">⚠️ No cached companies available</option>';
     }
 
-    // ⏱ Retry after 1 second in case VF iframe sends it late
+    // ⏱ Retry once after 1 sec in case VF message arrives late
     setTimeout(() => {
       const retry = localStorage.getItem('company_list');
       if (retry) {
@@ -265,40 +266,18 @@ document.getElementById('offlineInvoiceForm').addEventListener('submit', functio
     }, 1000);
   });
 
-  // 📥 Listen for postMessage from VF to update & save companies
+  // 📥 Listen for postMessage from VF (optional if iframe-preload is used)
   window.addEventListener('message', (event) => {
     try {
       const msg = event.data;
       if (msg?.type === 'companyList') {
         const data = JSON.parse(msg.data);
-        if (Array.isArray(data)) {
-          localStorage.setItem('company_list', msg.data);
-
-          // ✅ Optional: show a green synced message
-          const notify = document.createElement('div');
-          notify.innerText = '✅ Company list synced from Salesforce';
-          notify.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a1a1a;
-            color: #28a745;
-            padding: 10px 16px;
-            border-radius: 20px;
-            border: 1px solid #28a745;
-            font-size: 0.9rem;
-            z-index: 9999;
-          `;
-          document.body.appendChild(notify);
-          setTimeout(() => notify.remove(), 2500);
-
-          populateCompanyDropdown(data);
-          console.log('📥 Company list received and saved:', data);
-        }
+        localStorage.setItem('company_list', msg.data);
+        populateCompanyDropdown(data);
+        console.log('📥 Company list received and saved:', data);
       }
     } catch (err) {
-      console.error('❌ Error receiving postMessage:', err);
+      console.error('❌ Error in postMessage:', err);
     }
   });
 </script>
