@@ -138,6 +138,10 @@
       background-color: #FF5F15;
       color: white;
     }
+    .hidden {
+  display: none;
+}
+
   </style>
 </head>
 <body>
@@ -276,6 +280,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const name = localStorage.getItem('submittedBy');
   if (name) document.getElementById('submittedBy').value = name;
 });
+  // Show/hide new contact fields based on selection
+  document.getElementById('contactSelect').addEventListener('change', function () {
+    const newContactFields = document.getElementById('newContactFields');
+    if (this.value === 'new') {
+      newContactFields.classList.remove('hidden');
+    } else {
+      newContactFields.classList.add('hidden');
+    }
+  });
 </script>
 </body>
 </html>
