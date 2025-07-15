@@ -78,204 +78,75 @@
       font-size: 0.85rem;
       white-space: nowrap;
     }
-    .keypad-container {
-      background: #f2f2f2;
-      position: fixed;
-      z-index: 9999;
-      inset: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .keypad-card {
-      background: white;
-      border-radius: 18px;
-      padding: 25px 20px;
-      text-align: center;
-      width: 340px;
-      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
-      font-family: 'SF Pro', sans-serif;
-    }
-    .keypad-header {
-      background: black;
-      color: white;
-      padding: 14px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 16px;
-    }
-    .input-field {
-      width: 100%;
-      padding: 12px 10px;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 18px;
-      margin-bottom: 18px;
-      border: 1.5px solid #ccc;
-      background: #f9f9f9;
-      color: #222;
-      box-sizing: border-box;
-    }
-    .keypad {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    .keypad button {
-      padding: 18px;
-      font-size: 20px;
-      border: none;
-      border-radius: 12px;
-      background: #ffffff;
-      color: #222;
-      font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      cursor: pointer;
-    }
-    .ok-button {
-      grid-column: span 3;
-      background-color: #FF5F15;
-      color: white;
-    }
   </style>
 </head>
 <body>
-<div class="keypad-container" id="keypadContainer">
-  <div class="keypad-card">
-    <div class="keypad-header">Workforce ID  PIN</div>
-    <input type="password" id="inputField" class="input-field" placeholder="Enter ID or PIN" readonly maxlength="20" />
-    <div class="keypad" id="keypad">
-      <button data-value="1">1</button><button data-value="2">2</button><button data-value="3">3</button>
-      <button data-value="4">4</button><button data-value="5">5</button><button data-value="6">6</button>
-      <button data-value="7">7</button><button data-value="8">8</button><button data-value="9">9</button>
-      <button data-value="X">X</button><button data-value="0">0</button><button data-value="#">⌫</button>
-      <button class="ok-button" id="submitButton">OK</button>
-    </div>
-  </div>
-</div>
-
-<div class="main-wrap" id="invoiceForm" style="display:none;">
+<div class="main-wrap">
   <div class="form-card">
     <div class="form-title">Field Invoice Form</div>
     <form id="offlineInvoiceForm">
+      <!-- Preload "Submitted By" from localStorage -->
       <div class="form-group">
-        <label class="form-label">Invoice #</label>
-        <input type="text" id="invoiceNumber" class="form-input" required />
+        <label class="form-label">Submitted By</label>
+        <input type="text" id="submittedBy" class="form-input" readonly value="" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Invoice Date</label>
-        <input type="date" id="invoiceDate" class="form-input" required />
-      </div>
+
+      <!-- Company -->
       <div class="form-group">
         <label class="form-label">Company</label>
-        <select id="companySelect" class="form-select" required></select>
+        <select id="companySelect" class="form-select" required>
+          <option value="">Select Company...</option>
+        </select>
       </div>
+
+      <!-- Contact -->
       <div class="form-group">
         <label class="form-label">Contact</label>
         <select id="contactSelect" class="form-select" required>
           <option value="">Select Contact...</option>
-          <option value="new">+ New Contact</option>
         </select>
       </div>
-      <div id="newContactFields" class="hidden">
-        <div class="form-group">
-          <label class="form-label">First Name</label>
-          <input type="text" id="newContactFirstName" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Last Name</label>
-          <input type="text" id="newContactLastName" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Mobile Number</label>
-          <input type="tel" id="newContactMobile" class="form-input" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" id="newContactEmail" class="form-input" />
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Approver Number</label>
-        <input type="text" id="approverNumber" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">AFE Number</label>
-        <input type="text" id="afeNumber" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Submitted By</label>
-        <input type="text" id="submittedBy" class="form-input" readonly />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Comments</label>
-        <textarea id="comments" class="form-textarea"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Upload Files</label>
-        <div class="file-list" id="fileList"></div>
-        <div class="upload-container" onclick="document.getElementById('fileInput').click();">
-          <input type="file" id="fileInput" style="display: none;" multiple />
-          <p>Click to select files</p>
-        </div>
-      </div>
+
+      <!-- Other Form Fields -->
+
+      <!-- Submit Button -->
       <button type="submit" class="save-btn">Save Invoice Offline</button>
     </form>
   </div>
 </div>
+
 <script>
-let isEnteringID = true;
-let enteredWorkforceId = '';
-let enteredPin = '';
+document.addEventListener('DOMContentLoaded', function () {
+  // Preload "Submitted By" field from localStorage
+  const submittedBy = localStorage.getItem('submittedBy');
+  if (submittedBy) {
+    document.getElementById('submittedBy').value = submittedBy;
+  }
 
-const keypad = document.getElementById('keypad');
-const inputField = document.getElementById('inputField');
-const submitButton = document.getElementById('submitButton');
-const keypadContainer = document.getElementById('keypadContainer');
-const invoiceForm = document.getElementById('invoiceForm');
+  // Preload "Company" field
+  const selectedCompany = localStorage.getItem('selectedCompany');
+  if (selectedCompany) {
+    document.getElementById('companySelect').value = selectedCompany;
+  }
 
-keypad.addEventListener('click', (event) => {
-  const btn = event.target;
-  if (btn.tagName === 'BUTTON' && btn.dataset.value) {
-    const val = btn.dataset.value;
-    if (val === 'X') inputField.value = '';
-    else if (val === '#') inputField.value = inputField.value.slice(0, -1);
-    else inputField.value += val;
+  // Preload "Contact" field
+  const selectedContact = localStorage.getItem('selectedContact');
+  if (selectedContact) {
+    document.getElementById('contactSelect').value = selectedContact;
   }
 });
 
-submitButton.addEventListener('click', () => {
-  if (isEnteringID) {
-    if (!inputField.value) return alert('❌ Enter Workforce ID');
-    enteredWorkforceId = inputField.value;
-    inputField.value = '';
-    inputField.placeholder = 'Enter PIN';
-    isEnteringID = false;
-  } else {
-    if (!inputField.value) return alert('❌ Enter PIN');
-    enteredPin = inputField.value;
-    if (enteredWorkforceId.length >= 3 && enteredPin.length >= 3) {
-      localStorage.setItem('offline_wfId', enteredWorkforceId);
-      localStorage.setItem('offline_contactId', 'guestOffline');
-      localStorage.setItem('submittedBy', 'Deepak Raj'); // Replace with actual name if dynamic
-      document.getElementById('submittedBy').value = 'Deepak Raj';
-      keypadContainer.style.display = 'none';
-      invoiceForm.style.display = 'flex';
-    } else {
-      alert('❌ Invalid ID or PIN');
-      inputField.value = '';
-      inputField.placeholder = 'Enter Workforce ID';
-      isEnteringID = true;
-    }
-  }
-});
+// Example function to set data to localStorage (use after data selection)
+function saveSelectionToLocalStorage() {
+  const submittedBy = document.getElementById('submittedBy').value;
+  const selectedCompany = document.getElementById('companySelect').value;
+  const selectedContact = document.getElementById('contactSelect').value;
 
-// Load cached company and contact
-document.addEventListener('DOMContentLoaded', () => {
-  const name = localStorage.getItem('submittedBy');
-  if (name) document.getElementById('submittedBy').value = name;
-});
+  // Store these values in localStorage
+  localStorage.setItem('submittedBy', submittedBy);
+  localStorage.setItem('selectedCompany', selectedCompany);
+  localStorage.setItem('selectedContact', selectedContact);
+}
 </script>
 </body>
 </html>
