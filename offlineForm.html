@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Field Invoice Upload (Offline)</title>
   <style>
-    /* Your existing Visualforce CSS mirrored here */
     body, html {
       margin: 0;
       padding: 0;
@@ -79,235 +78,204 @@
       font-size: 0.85rem;
       white-space: nowrap;
     }
+    .keypad-container {
+      background: #f2f2f2;
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .keypad-card {
+      background: white;
+      border-radius: 18px;
+      padding: 25px 20px;
+      text-align: center;
+      width: 340px;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+      font-family: 'SF Pro', sans-serif;
+    }
+    .keypad-header {
+      background: black;
+      color: white;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    .input-field {
+      width: 100%;
+      padding: 12px 10px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 18px;
+      border: 1.5px solid #ccc;
+      background: #f9f9f9;
+      color: #222;
+      box-sizing: border-box;
+    }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .keypad button {
+      padding: 18px;
+      font-size: 20px;
+      border: none;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #222;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      cursor: pointer;
+    }
+    .ok-button {
+      grid-column: span 3;
+      background-color: #FF5F15;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <div class="main-wrap">
-    <div class="form-card">
-      <div class="form-title">Field Invoice Form</div>
-
-      <form id="offlineInvoiceForm">
-        <div class="form-group">
-          <label class="form-label">Invoice #</label>
-          <input type="text" id="invoiceNumber" class="form-input" required />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Invoice Date</label>
-          <input type="date" id="invoiceDate" class="form-input" required />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Company</label>
-          <select id="companySelect" class="form-select" required></select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Contact</label>
-          <select id="contactSelect" class="form-select" required>
-            <option value="">Select Contact...</option>
-            <option value="new">+ New Contact</option>
-          </select>
-        </div>
-
-        <div id="newContactFields" class="hidden">
-          <div class="form-group">
-            <label class="form-label">First Name</label>
-            <input type="text" id="newContactFirstName" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Last Name</label>
-            <input type="text" id="newContactLastName" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Mobile Number</label>
-            <input type="tel" id="newContactMobile" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input type="email" id="newContactEmail" class="form-input" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Approver Number</label>
-          <input type="text" id="approverNumber" class="form-input" />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">AFE Number</label>
-          <input type="text" id="afeNumber" class="form-input" />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Comments</label>
-          <textarea id="comments" class="form-textarea"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Upload Files</label>
-          <div class="file-list" id="fileList"></div>
-          <div class="upload-container" onclick="document.getElementById('fileInput').click();">
-            <input type="file" id="fileInput" style="display: none;" multiple />
-            <p>Click to select files</p>
-          </div>
-        </div>
-
-        <button type="submit" class="save-btn">Save Invoice Offline</button>
-      </form>
+<div class="keypad-container" id="keypadContainer">
+  <div class="keypad-card">
+    <div class="keypad-header">Workforce ID  PIN</div>
+    <input type="password" id="inputField" class="input-field" placeholder="Enter ID or PIN" readonly maxlength="20" />
+    <div class="keypad" id="keypad">
+      <button data-value="1">1</button><button data-value="2">2</button><button data-value="3">3</button>
+      <button data-value="4">4</button><button data-value="5">5</button><button data-value="6">6</button>
+      <button data-value="7">7</button><button data-value="8">8</button><button data-value="9">9</button>
+      <button data-value="X">X</button><button data-value="0">0</button><button data-value="#">⌫</button>
+      <button class="ok-button" id="submitButton">OK</button>
     </div>
   </div>
+</div>
+
+<div class="main-wrap" id="invoiceForm" style="display:none;">
+  <div class="form-card">
+    <div class="form-title">Field Invoice Form</div>
+    <form id="offlineInvoiceForm">
+      <div class="form-group">
+        <label class="form-label">Invoice #</label>
+        <input type="text" id="invoiceNumber" class="form-input" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Invoice Date</label>
+        <input type="date" id="invoiceDate" class="form-input" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Company</label>
+        <select id="companySelect" class="form-select" required></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact</label>
+        <select id="contactSelect" class="form-select" required>
+          <option value="">Select Contact...</option>
+          <option value="new">+ New Contact</option>
+        </select>
+      </div>
+      <div id="newContactFields" class="hidden">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" id="newContactFirstName" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" id="newContactLastName" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile Number</label>
+          <input type="tel" id="newContactMobile" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="newContactEmail" class="form-input" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Approver Number</label>
+        <input type="text" id="approverNumber" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">AFE Number</label>
+        <input type="text" id="afeNumber" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Submitted By</label>
+        <input type="text" id="submittedBy" class="form-input" readonly />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Comments</label>
+        <textarea id="comments" class="form-textarea"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Upload Files</label>
+        <div class="file-list" id="fileList"></div>
+        <div class="upload-container" onclick="document.getElementById('fileInput').click();">
+          <input type="file" id="fileInput" style="display: none;" multiple />
+          <p>Click to select files</p>
+        </div>
+      </div>
+      <button type="submit" class="save-btn">Save Invoice Offline</button>
+    </form>
+  </div>
+</div>
 <script>
-document.getElementById('offlineInvoiceForm').addEventListener('submit', function (e) {
-  e.preventDefault(); // prevent actual submission
+let isEnteringID = true;
+let enteredWorkforceId = '';
+let enteredPin = '';
 
-  const formData = {
-    invoiceNumber: document.getElementById('invoiceNumber').value,
-    invoiceDate: document.getElementById('invoiceDate').value,
-    companyId: document.getElementById('companySelect').value,
-    contactId: document.getElementById('contactSelect').value,
-    approverNumber: document.getElementById('approverNumber').value,
-    afeNumber: document.getElementById('afeNumber').value,
-    comments: document.getElementById('comments').value,
-    newContact: null,
-    files: []
-  };
+const keypad = document.getElementById('keypad');
+const inputField = document.getElementById('inputField');
+const submitButton = document.getElementById('submitButton');
+const keypadContainer = document.getElementById('keypadContainer');
+const invoiceForm = document.getElementById('invoiceForm');
 
-  // If new contact was selected
-  if (formData.contactId === 'new') {
-    formData.newContact = {
-      firstName: document.getElementById('newContactFirstName').value,
-      lastName: document.getElementById('newContactLastName').value,
-      mobile: document.getElementById('newContactMobile').value,
-      email: document.getElementById('newContactEmail').value
-    };
+keypad.addEventListener('click', (event) => {
+  const btn = event.target;
+  if (btn.tagName === 'BUTTON' && btn.dataset.value) {
+    const val = btn.dataset.value;
+    if (val === 'X') inputField.value = '';
+    else if (val === '#') inputField.value = inputField.value.slice(0, -1);
+    else inputField.value += val;
   }
+});
 
-  // Process uploaded files as base64
-  const input = document.getElementById('fileInput');
-  const files = input.files;
-
-  if (files.length > 0) {
-    let remaining = files.length;
-
-    for (let i = 0; i < files.length; i++) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        formData.files.push({
-          name: files[i].name,
-          body: e.target.result
-        });
-
-        remaining--;
-        if (remaining === 0) {
-          saveOfflineInvoice(formData);
-        }
-      };
-      reader.onerror = function () {
-        alert('❌ Error reading file: ' + files[i].name);
-        remaining--;
-      };
-      reader.readAsDataURL(files[i]);
-    }
+submitButton.addEventListener('click', () => {
+  if (isEnteringID) {
+    if (!inputField.value) return alert('❌ Enter Workforce ID');
+    enteredWorkforceId = inputField.value;
+    inputField.value = '';
+    inputField.placeholder = 'Enter PIN';
+    isEnteringID = false;
   } else {
-    saveOfflineInvoice(formData);
-  }
-
-  function saveOfflineInvoice(data) {
-    localStorage.setItem('offline_invoice_data', JSON.stringify(data));
-    alert('✅ Invoice saved offline. It will be submitted when online.');
-    document.getElementById('offlineInvoiceForm').reset();
-    document.getElementById('fileList').innerHTML = '';
-  }
-});
-
-  function populateCompanyDropdown(companies) {
-    const companySelect = document.getElementById('companySelect');
-    if (!companySelect) return;
-
-    companySelect.innerHTML = '<option value="">Select Company...</option>';
-    companies.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.id;
-      opt.textContent = c.name;
-      companySelect.appendChild(opt);
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const cached = localStorage.getItem('company_list');
-
-    if (cached) {
-      try {
-        const companies = JSON.parse(cached);
-        populateCompanyDropdown(companies);
-        console.log('✅ Company list loaded from cache');
-      } catch (e) {
-        console.error('❌ Failed to parse company_list from localStorage', e);
-        document.getElementById('companySelect').innerHTML =
-          '<option value="">⚠️ Failed to load companies</option>';
-      }
+    if (!inputField.value) return alert('❌ Enter PIN');
+    enteredPin = inputField.value;
+    if (enteredWorkforceId.length >= 3 && enteredPin.length >= 3) {
+      localStorage.setItem('offline_wfId', enteredWorkforceId);
+      localStorage.setItem('offline_contactId', 'guestOffline');
+      localStorage.setItem('submittedBy', 'Deepak Raj'); // Replace with actual name if dynamic
+      document.getElementById('submittedBy').value = 'Deepak Raj';
+      keypadContainer.style.display = 'none';
+      invoiceForm.style.display = 'flex';
     } else {
-      document.getElementById('companySelect').innerHTML =
-        '<option value="">⚠️ No cached companies available</option>';
+      alert('❌ Invalid ID or PIN');
+      inputField.value = '';
+      inputField.placeholder = 'Enter Workforce ID';
+      isEnteringID = true;
     }
-
-    // ⏱ Retry once after 1 sec in case VF message arrives late
-    setTimeout(() => {
-      const retry = localStorage.getItem('company_list');
-      if (retry) {
-        try {
-          populateCompanyDropdown(JSON.parse(retry));
-          console.log('⏱ Retried loading company list from cache');
-        } catch (e) {
-          console.error('❌ Retry failed:', e);
-        }
-      }
-    }, 1000);
-  });
-
-  // 📥 Listen for postMessage from VF (optional if iframe-preload is used)
- // 📥 Listen for postMessage from VF to update & save companies
-window.addEventListener('message', (event) => {
-  try {
-    const msg = event.data;
-    if (msg?.type === 'companyList') {
-      const data = JSON.parse(msg.data);
-      if (Array.isArray(data)) {
-        localStorage.setItem('company_list', msg.data);
-
-        // Optionally show a green synced message
-        const notify = document.createElement('div');
-        notify.innerText = '✅ Company list synced from Salesforce';
-        notify.style.cssText = `
-          position: fixed;
-          bottom: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: #1a1a1a;
-          color: #28a745;
-          padding: 10px 16px;
-          border-radius: 20px;
-          border: 1px solid #28a745;
-          font-size: 0.9rem;
-          z-index: 9999;
-        `;
-        document.body.appendChild(notify);
-        setTimeout(() => notify.remove(), 2500);
-
-        populateCompanyDropdown(data); // <-- populate dropdown immediately
-        console.log('📥 Company list received and saved:', data);
-      }
-    }
-  } catch (err) {
-    console.error('❌ Error receiving postMessage:', err);
   }
 });
 
+// Load cached company and contact
+document.addEventListener('DOMContentLoaded', () => {
+  const name = localStorage.getItem('submittedBy');
+  if (name) document.getElementById('submittedBy').value = name;
+});
 </script>
-
-
-
 </body>
 </html>
-
