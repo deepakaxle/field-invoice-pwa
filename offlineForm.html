@@ -147,6 +147,59 @@ function saveSelectionToLocalStorage() {
   localStorage.setItem('selectedCompany', selectedCompany);
   localStorage.setItem('selectedContact', selectedContact);
 }
+
+// Fetch companies from localStorage and populate the company dropdown
+function fetchCompanies() {
+  const companies = JSON.parse(localStorage.getItem('company_list') || '[]');
+  const companySelect = document.getElementById('companySelect');
+
+  companies.forEach(company => {
+    const option = document.createElement('option');
+    option.value = company.id;
+    option.textContent = company.name;
+    companySelect.appendChild(option);
+  });
+
+  // Call the fetch contacts function if necessary after fetching companies
+  const selectedCompany = localStorage.getItem('selectedCompany');
+  if (selectedCompany) {
+    document.getElementById('companySelect').value = selectedCompany;
+    fetchContacts(selectedCompany);
+  }
+}
+
+// Fetch contacts based on selected company
+function fetchContacts(companyId) {
+  const contactSelect = document.getElementById('contactSelect');
+  const contacts = JSON.parse(localStorage.getItem('contact_list') || '[]');
+  
+  // Clear the contact dropdown
+  contactSelect.innerHTML = '<option value="">Select Contact...</option>';
+
+  contacts.forEach(contact => {
+    if (contact.companyId === companyId) {
+      const option = document.createElement('option');
+      option.value = contact.id;
+      option.textContent = contact.name;
+      contactSelect.appendChild(option);
+    }
+  });
+}
+
+// Save selected company and contact when changed
+document.getElementById('companySelect').addEventListener('change', function() {
+  const selectedCompany = this.value;
+  localStorage.setItem('selectedCompany', selectedCompany);
+  fetchContacts(selectedCompany);
+});
+
+document.getElementById('contactSelect').addEventListener('change', function() {
+  const selectedContact = this.value;
+  localStorage.setItem('selectedContact', selectedContact);
+});
+
+// Fetch companies and contacts on page load
+fetchCompanies();
 </script>
 </body>
 </html>
