@@ -171,17 +171,23 @@
         <label class="form-label">Invoice Date</label>
         <input type="date" id="invoiceDate" class="form-input" required />
       </div>
-      <div class="form-group">
-        <label class="form-label">Company</label>
-        <select id="companySelect" class="form-select" required></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Contact</label>
-        <select id="contactSelect" class="form-select" required>
-          <option value="">Select Contact...</option>
-          <option value="new">+ New Contact</option>
-        </select>
-      </div>
+     
+<!-- 🚚 Company Dropdown -->
+<div class="form-group">
+    <label for="companySelect">Company</label>
+    <select id="companySelect" class="form-select">
+        <option value="">Select Company...</option>
+    </select>
+</div>
+      <!-- 🚚 Contact Dropdown -->
+<div class="form-group">
+    <label for="contactSelect">Contact</label>
+    <select id="contactSelect" class="form-select">
+        <option value="">Select Contact...</option>
+        <option value="new">+ New Contact</option>
+    </select>
+</div>
+
       <div id="newContactFields" class="hidden">
         <div class="form-group">
           <label class="form-label">First Name</label>
@@ -289,6 +295,38 @@ document.addEventListener('DOMContentLoaded', () => {
       newContactFields.classList.add('hidden');
     }
   });
+  // Function to initialize the form with cached data
+function initializeOfflineForm() {
+    const companySelect = document.getElementById('companySelect');
+    
+    // Check if company list is available in localStorage
+    const cachedCompanies = localStorage.getItem('company_list');
+    if (cachedCompanies) {
+        try {
+            const companies = JSON.parse(cachedCompanies);
+            populateCompanyDropdown(companies); // Populate dropdown from cached data
+        } catch (e) {
+            console.error('❌ Failed to parse company list from localStorage', e);
+        }
+    } else {
+        alert('❌ No company data available. Please try again when online.');
+    }
+}
+
+// Function to populate the company dropdown
+function populateCompanyDropdown(companies) {
+    const companySelect = document.getElementById('companySelect');
+    
+    companies.forEach(company => {
+        const option = document.createElement('option');
+        option.value = company.id;
+        option.innerText = company.name;
+        companySelect.appendChild(option);
+    });
+}
+
+// Initialize the form on page load
+document.addEventListener('DOMContentLoaded', initializeOfflineForm);
 </script>
 </body>
 </html>
